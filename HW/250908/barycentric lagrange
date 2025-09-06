@@ -1,0 +1,39 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+def barycentric_weights(x):
+    n = len(x)
+    w = np.zeros(n)
+    for j in range(n):
+        w[j] = 1 / np.prod(x[j] - np.concatenate((x[:j], x[j+1:])))
+    return w
+
+def barycentric_lagrange_poly(x, y, x_new):
+    w = barycentric_weights(x)
+    y_new = np.zeros_like(x_new)
+    for i, xi in enumerate(x_new):
+        numerator = 0
+        denominator = 0
+        for j in range(len(x)):
+            if xi == x[j]:
+                y_new[i] = y[j]
+                break
+            term = w[j] / (xi - x[j])
+            numerator += term * y[j]
+            denominator += term
+        else:
+            y_new[i] = numerator / denominator
+    return y_new
+
+f = lambda x: np.sin(x)
+x = np.linspace(0, 1, 10)
+y = f(x)
+x_plot = np.linspace(0, 1, 100)
+
+y_barycentric = barycentric_lagrange_poly(x, y, x_plot)
+plt.figure(figsize=(8, 6))
+plt.plot(x_plot, f(x_plot), 'k-')
+plt.plot(x, y, 'ro')
+plt.plot(x_plot, y_barycentric, 'c--')
+plt.grid(True)
+plt.show()
